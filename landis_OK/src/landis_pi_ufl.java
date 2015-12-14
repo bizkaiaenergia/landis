@@ -17,14 +17,17 @@ import java.util.Date;
 
 
 public class landis_pi_ufl {
-
+	//14/12/2015 Se añade funcionalidad de parar y arrancar procesos landis en caso de fallo de comunicaciones. v 2.0.3.
+	
+	
 	public static String ultimo_bucle_generado;
 	public static String fallo;
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		System.out.println("Importación ficheros sistema Landis a PI_UFL");
 		//Cogemos fecha y hora actuales.
@@ -168,7 +171,7 @@ public class landis_pi_ufl {
 					fallo = fallo + " Gatika,";
 				}
 				if (ITXASO_fallo.equals(true)){
-					fallo = fallo + " Itaxaso,";
+					fallo = fallo + " Itxaso,";
 				}
 				if (KV_fallo.equals(true)){
 					fallo = fallo + " 30KV";
@@ -181,8 +184,42 @@ public class landis_pi_ufl {
 					System.out.println("No hay datos se va a intentar de nuevo en la hora siguiente");
 					//String fallo = ("Fallo en "+"GT1="+ GT1_fallo+" GT2="+GT2_fallo+" TV="+TV_fallo+" GATIKA="+GATIKA_fallo+" ITXASO="+ITXASO_fallo+" 30KV="+KV_fallo);
 					System.out.println(fallo);
-					 SendEmail.main(fallo,host,from,to,cc);
-					minutos_generacion = Archivopropiedades1.minutos_generacion();
+					SendEmail.main(fallo,host,from,to,cc);
+					//Se debe haber colgado el proceso de LANDIS.
+					//Se intenta matar el proceso.PAdqAutT2k4700.exe y AdqAut.exe
+					 String processName1 = "PAdqAutT2k4700.exe";
+					 String processName2 = "AdqAut.exe";
+					 //System.out.print(isProcessRunning(processName));
+					 if (KillProcess.isProcessRunning(processName1)) {
+							 KillProcess.killProcess(processName1);
+					 }
+					 if (KillProcess.isProcessRunning(processName2)) {
+						 KillProcess.killProcess(processName2);
+					 }
+					 Thread.sleep(5000);
+					 if (KillProcess.isProcessRunning(processName1) == false && KillProcess.isProcessRunning(processName2)== false){
+						 System.out.println("Se han matado los procesos");
+						 //arrancar el programa"
+						 Runtime rt_landis = Runtime.getRuntime();
+						 Process pr1_landis = rt_landis.exec("cmd /c E://Landis+Gyr//TarSys//AdqAut.exe 1");
+						 System.out.println("cmd /c E://Landis+Gyr//TarSys//AdqAut.exe 1");
+						 BufferedReader input_landis = new BufferedReader(new InputStreamReader(pr1_landis.getInputStream()));
+							String line_landis=null;
+							 while((line_landis=input_landis.readLine()) != null) {
+				                    System.out.println(line_landis); 
+							 }
+							 int exitVal_landis = pr1_landis.waitFor();
+							 System.out.println("Exited with error code "+exitVal_landis); 
+						
+						 
+					 }else{
+						 System.out.println("NO Se han matado los procesos");
+						 SendEmail.main("NO Se han matado los procesos",host,from,to,cc);
+					 }
+					 
+					 					 
+					 minutos_generacion = Archivopropiedades1.minutos_generacion();
+					
 				}else{
 				ultimo_bucle_generado = "200101010000";
 				System.out.println("No hay datos se va a intentar de nuevo en el minuto " + nuevos_minutos_generacion + " de esta hora");
@@ -276,5 +313,9 @@ public class landis_pi_ufl {
 		}
 		
 	}
+
+	
+
+	
 
 }
