@@ -203,13 +203,13 @@ public class landis_pi_ufl {
 						 Runtime rt_landis = Runtime.getRuntime();
 						 Process pr1_landis = rt_landis.exec("cmd /c E://Landis+Gyr//TarSys//AdqAut.exe 1");
 						 System.out.println("cmd /c E://Landis+Gyr//TarSys//AdqAut.exe 1");
-						 BufferedReader input_landis = new BufferedReader(new InputStreamReader(pr1_landis.getInputStream()));
-							String line_landis=null;
-							 while((line_landis=input_landis.readLine()) != null) {
-				                    System.out.println(line_landis); 
-							 }
-							 int exitVal_landis = pr1_landis.waitFor();
-							 System.out.println("Exited with error code "+exitVal_landis); 
+						// BufferedReader input_landis = new BufferedReader(new InputStreamReader(pr1_landis.getInputStream()));
+						//	String line_landis=null;
+						//	 while((line_landis=input_landis.readLine()) != null) {
+				        //            System.out.println(line_landis); 
+						//	 }
+						//	 int exitVal_landis = pr1_landis.waitFor();
+						//	 System.out.println("Exited with error code "+exitVal_landis); 
 						
 						 
 					 }else{
